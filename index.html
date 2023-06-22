@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE-edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Gages</title>
+    <style>
+        .letter {
+            background-color: cadetblue;
+            display: flex;
+            width: 50px;
+            aspect-ratio: 1;
+            margin-inline: 0.2rem;
+            border: solid grey .2px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .victory{
+        }
+    </style>
+</head>
+<body style="background-color: bisque; display: flex; flex-wrap: wrap; align-items: center; justify-content: center ">
+<div style="width:100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: center">
+    <h1 id="pendu" style="text-align: center; width:100%; color: burlywood; font-size: 5rem; margin-block: 50px" class="text-3xl font-bold underline">Mon premier pendu </h1>
+    <h2 id="error" class="text-end font-bold underline" style="text-align: center; width:100%; color: burlywood; margin-block: 50px">Nb errors : <span id="nb_errors">0</span></h2>
+    <div class="container rounded" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: center; margin-top: 25px; font-size: 2rem; width:100%">
+        <p id="result" style="background-color: blanchedalmond; margin-inline:20px; display: flex; flex-wrap:nowrap"></p>
+    </div >
+    <div id="victory" class="container rounded" style="background-color: grey; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; margin-top: 25px; font-size: 2rem;"></div>
+    <button id="click" style="background-color: burlywood; margin-top: 25px; padding-inline: 10px; font-size:1.2rem"  class="relative inline-block flex-shrink-0 h6 w-100 border-2 border-transparent rounded">Cliques là !</button>
+</div>
+</body>
+<script>
+    //autant mettre une variable dans la fonction qui l'utilise
+    let words = ['coucou', 'hibou', 'entend', 'foret', 'lointaine', 'gros', 'chene'];
+    let used_words=[];
+    let nb_errors = 0;
+
+let get_random_word = () => {
+    if(words.length==0){
+        //clone le tableau et ne devient pas la même variable avec ...
+        words=[...used_words]
+        used_words.splice(0)
+    }
+    let random_index = Math.trunc(Math.random()* words.length)
+    let word = words[random_index]
+    used_words.push(word)
+    words.splice(random_index, 1)
+    return word
+}
+
+function select_a_word(){
+    document.body.removeEventListener('keyup', search_if_letter_is_in_word);
+    // keyup = quand la touche est relâchée
+    document.body.addEventListener('keyup', search_if_letter_is_in_word);
+    let word = get_random_word();
+    document.querySelector("#result").innerHTML=''
+    console.warn(word);
+    for (letter of word) {
+    let newSpan = document.createElement("span");
+    newSpan.classList.add('letter');
+    // ajouter data devant un attribut (convention)
+    // avec les lettres toujours en minuscule (toLowerCase)
+    newSpan.setAttribute('data-letter', letter.toLowerCase());
+    document.querySelector("#result").appendChild(newSpan);
+}}
+
+    function display_nberrors(){
+    document.querySelector('#nb_errors').innerText = nb_errors;
+    }
+document.querySelector('#click').addEventListener('click', select_a_word);
+// keyup = quand la touche est relâchée
+
+    let nb_letters_found = 0;
+    let letters_already_pressed = [];
+function search_if_letter_is_in_word(event) {
+    //oblige la lettre appuyée à être prise en minuscule
+    let letter_pressed = event.key.toLowerCase();
+    // on va chercher toutes les lettres du mot
+    let cells = document.querySelectorAll('.letter');
+    let found = false;
+    // Je vérifie que ce n'est pas une lettre déjà recherché au préalable
+    if(!letters_already_pressed.includes(letter_pressed)) {
+        // pour chaque cellule affiche un voui si la lettre cliquée est dans le mot
+        for (cell of cells) {
+            // si l'attribut est égale à la touche sur laquelle on a appuyé
+            if (cell.getAttribute('data-letter') == letter_pressed) {
+                //j'insère dans la celluele la touche appuyée
+                cell.innerHTML = letter_pressed;
+                found = true;
+                nb_letters_found++;
+            }
+        }
+        if (!found) {
+            nb_errors++;
+        }
+        letters_already_pressed.push(letter_pressed)
+    }
+    console.log(nb_letters_found, "VS", cells.length)
+    if(nb_letters_found== cells.length){
+        console.warn("Vous avez gagné !")
+        let newSpan = document.createElement("span");
+        newSpan.classList.add('victory');
+        newSpan.innerHTML = "Vous avez gagné !"
+        document.querySelector("#victory").appendChild(newSpan);
+        document.querySelector("#click").innerHTML ="Rejouez ?";
+        
+       // letters_already_pressed.splice(0, letters_already_pressed.length)
+    }
+
+    display_nberrors()
+
+}
+
+
+</script>
+</html>
